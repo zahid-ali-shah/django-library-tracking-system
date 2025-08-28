@@ -1,5 +1,9 @@
-from django.db import models
+from datetime import timedelta
+
 from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
+
 
 class Author(models.Model):
     first_name = models.CharField(max_length=100)
@@ -8,6 +12,7 @@ class Author(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
 
 class Book(models.Model):
     GENRE_CHOICES = [
@@ -27,19 +32,23 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
+
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     membership_date = models.DateField(auto_now_add=True)
+
     # Add more fields if necessary
 
     def __str__(self):
         return self.user.username
+
 
 class Loan(models.Model):
     book = models.ForeignKey(Book, related_name='loans', on_delete=models.CASCADE)
     member = models.ForeignKey(Member, related_name='loans', on_delete=models.CASCADE)
     loan_date = models.DateField(auto_now_add=True)
     return_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(default=timezone.now().date() + timedelta(days=14))
     is_returned = models.BooleanField(default=False)
 
     def __str__(self):
